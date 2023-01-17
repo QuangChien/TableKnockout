@@ -11,13 +11,25 @@
         return columns;
     }
 
+    var Options = function(totalShow) {
+        this.totalShowOptions = totalShow;
+    };
+
     ko.simpleGrid = {
         // Defines a view model class you can use to populate a grid
         viewModel: function (configuration) {
             this.data = configuration.data;
             this.currentPageIndex = ko.observable(0);
-            this.pageSize = configuration.pageSize || 5;
+            this.pageSize = configuration.pageSize;
 
+            this.availableOptions = ko.observableArray([
+                new Options(5),
+                new Options(10),
+                new Options(15),
+                new Options(20),
+            ]);
+
+            this.selectedOption = ko.observable();
             // If you don't specify columns configuration, we'll use scaffolding
             this.columns = configuration.columns || getColumnsForScaffolding(ko.utils.unwrapObservable(this.data));
 
@@ -55,6 +67,12 @@
                 }
             }
 
+            this.optionsChange = function(data){
+                // this.pageSize = this.selectedOption()
+                // console.log(this.selectedOption())
+            }
+
+
             // console.log(this.pageSize)
             this.totalRecord = configuration.data().length;
         }
@@ -71,11 +89,12 @@
                   <div class=\"dataTables_length\">\
                         <label>\
                             Show\
-                            <select name=\"example_length\">\
-                                <option value=\"10\">10</option>\
-                                <option value=\"25\">25</option>\
-                                <option value=\"50\">50</option>\
-                                <option value=\"100\">100</option>\
+                            <select  data-bind=\"event:{ change: optionsChange() }, options: availableOptions(),\
+                            optionsText: function(item) {\
+                                   return item.totalShowOptions\
+                               },optionsValue: function(item) {\
+                                   return item.totalShowOptions\
+                               }, value: selectedOption\" name=\"example_length\">\
                             </select>\
                             entries\
                         </label>\

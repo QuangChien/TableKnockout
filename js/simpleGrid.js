@@ -1,5 +1,4 @@
 (function () {
-    // Private function
     function getColumnsForScaffolding(data) {
         if ((typeof data.length !== 'number') || data.length === 0) {
             return [];
@@ -15,12 +14,24 @@
         this.totalShowOptions = totalShow;
     };
 
+    ko.bindingHandlers.toggleClick = {
+        init: function(element, valueAccessor){
+            var observable = valueAccessor();
+            ko.utils.registerEventHandler(element, "click", function () {
+                var val = observable();
+                observable(!val);
+            });
+        }
+    };
+
     ko.simpleGrid = {
-        // Defines a view model class you can use to populate a grid
         viewModel: function (configuration) {
-            this.data = configuration.data;
+            var self = this;
+            self.data = ko.observableArray(configuration.data());
             this.currentPageIndex = ko.observable(0);
-            this.pageSize = configuration.pageSize;
+            this.pageSize = ko.observable(configuration.pageSize);
+
+            this.sorting = ko.observable(false);
 
             this.availableOptions = ko.observableArray([
                 new Options(5),
@@ -31,15 +42,24 @@
 
             this.selectedOption = ko.observable();
             // If you don't specify columns configuration, we'll use scaffolding
-            this.columns = configuration.columns || getColumnsForScaffolding(ko.utils.unwrapObservable(this.data));
+            this.columns = configuration.columns || getColumnsForScaffolding(ko.utils.unwrapObservable(this.data()));
 
-            this.itemsOnCurrentPage = ko.computed(function () {
-                var startIndex = this.pageSize * this.currentPageIndex();
-                return this.data.slice(startIndex, startIndex + this.pageSize);
-            }, this);
+            this.itemsOnCurrentPage = ko.pureComputed(function () {
+                var startIndex = Number(this.pageSize()) * this.currentPageIndex();
+                if(startIndex > this.totalRecord) {
+                    this.currentPageIndex(1);
+                    startIndex = Number(this.pageSize()) * this.currentPageIndex();
+                }
+                var newData = ko.utils.arrayFilter(self.data(), function(item) {
+                    return item.isFiltered(true);
+                });
+                this.sorting = !this.sorting;
+                console.log("change")
+                return newData.slice(startIndex, startIndex + Number(this.pageSize()));
+            }, this).extend({ notify: 'always' });
 
             this.maxPageIndex = ko.computed(function () {
-                return Math.ceil(ko.utils.unwrapObservable(this.data).length / this.pageSize) - 1;
+                return Math.ceil(ko.utils.unwrapObservable(this.data()).length / this.pageSize()) - 1;
             }, this);
 
             this.previousAction = function() {
@@ -56,29 +76,62 @@
                 }else{
                     this.currentPageIndex(this.currentPageIndex() + 1);
                 }
-                // console.log(this.maxPageIndex())
             }
 
             this.numberTo = function() {
-                if(this.totalRecord - (this.pageSize * this.currentPageIndex()) > this.pageSize){
-                    return (this.pageSize * this.currentPageIndex()) + this.pageSize;
+                if(this.totalRecord - (Number(this.pageSize()) * this.currentPageIndex()) > Number(this.pageSize())){
+                    return (Number(this.pageSize()) * this.currentPageIndex()) + Number(this.pageSize());
                 }else{
                     return this.totalRecord;
                 }
             }
 
-            this.optionsChange = function(data){
-                // this.pageSize = this.selectedOption()
-                // console.log(this.selectedOption())
+            this.optionsChange = function(obj, event){
+                this.pageSize(event.target.value)
+                // console.log(event.target.value)
             }
 
+            this.totalRecord = this.data().length;
 
-            // console.log(this.pageSize)
-            this.totalRecord = configuration.data().length;
+            this.filter = {
+                value: ko.observable()
+            }
+
+            this.filter.value.subscribe(function(newValue) {
+                newValue = newValue.toLowerCase();
+                self.data().forEach(function(item) {
+                    if (item.name().toLowerCase().indexOf(newValue) > -1
+                        || item.position().toLowerCase().indexOf(newValue) > -1
+                        || item.office().toLowerCase().indexOf(newValue) > -1
+                        || String(item.age()).indexOf(newValue) > -1
+                        || item.startDate().toLowerCase().indexOf(newValue) > -1
+                    ) {
+                        item.isFiltered(true);
+                    } else {
+                        item.isFiltered(false);
+                    }
+                });
+                // filterData(newValue);
+            });
+
+            this.sortData = function(data, event){
+                this.sorting = !this.sorting;
+                console.log(this.sorting);
+            }
+
+            this.sorting.subscribe(function(newValue){
+                console.log(newValue)
+            })
+            // console.log(this.data())
+
+            // function filterData(filter) {
+            //     self = this;
+            //
+            //     // console.log(configuration.data())
+            // }
         }
     };
 
-    // Templates used to render the grid
     var templateEngine = new ko.nativeTemplateEngine();
 
     templateEngine.addTemplate = function(templateName, templateMarkup) {
@@ -89,7 +142,7 @@
                   <div class=\"dataTables_length\">\
                         <label>\
                             Show\
-                            <select  data-bind=\"event:{ change: optionsChange() }, options: availableOptions(),\
+                            <select  data-bind=\"event:{ change: optionsChange }, options: availableOptions(),\
                             optionsText: function(item) {\
                                    return item.totalShowOptions\
                                },optionsValue: function(item) {\
@@ -103,7 +156,7 @@
 
     templateEngine.addTemplate("ko_simpleGrid_filter", "\
                   <div class=\"dataTables_filter\">\
-                        <label>Search:<input type=\"search\" class=\"\"></label>\
+                        <label>Search:<input data-bind=\"value: filter.value, valueUpdate: 'afterkeydown'\" type=\"search\" class=\"\"></label>\
                    </div>\
                   ");
 
@@ -111,12 +164,12 @@
                     <table style=\"width: 100%;\" class=\"ko-grid display nowrap dataTable dtr-inline collapsed\" cellspacing=\"0\">\
                         <thead>\
                             <tr data-bind=\"foreach: columns\">\
-                               <th class=\"sorting sorting_asc\" data-bind=\"text: headerText\"></th>\
+                               <th class=\"sorting\" data-bind=\"text: headerText, click: $root.sortData, css: { sorting_asc: $root.sortData }\"></th>\
                             </tr>\
                         </thead>\
                         <tbody data-bind=\"foreach: itemsOnCurrentPage\">\
-                           <tr class=\"odd\" data-bind=\"foreach: $parent.columns\">\
-                               <td data-bind=\"text: typeof rowText == 'function' ? rowText($parent) : $parent[rowText] \"></td>\
+                           <tr class=\"odd\" data-bind=\"hidden: !isFiltered(),foreach: $parent.columns\">\
+                               <td data-bind=\"css: {  }, text: typeof rowText == 'function' ? rowText($parent) : $parent[rowText] \"></td>\
                             </tr>\
                         </tbody>\
                         <tfoot>\
@@ -128,12 +181,12 @@
                                 <th class=\"dt-body-right\" rowspan=\"1\" colspan=\"1\">Start date</th>\
                                 <th class=\"dt-body-right dtr-hidden\" rowspan=\"1\" colspan=\"1\" style=\"display: none;\">Salary</th>\
                             </tr>\
-                            </tfoot>\
+                        </tfoot>\
                     </table>");
 
     templateEngine.addTemplate("ko_simpleGrid_info", "\
                     <div class=\"dataTables_info\">\
-                        Showing <span data-bind = \"text: ($root.pageSize * $root.currentPageIndex()) + 1 \"></span> to \
+                        Showing <span data-bind = \"text: ($root.pageSize() * $root.currentPageIndex()) + 1 \"></span> to \
                         <span data-bind = \"text: $root.numberTo() \"></span> of \
                         <span data-bind='text: totalRecord'></span> entries\
                     </div>");
@@ -155,15 +208,13 @@
         init: function() {
             return { 'controlsDescendantBindings': true };
         },
-        // This method is called to initialize the node, and will also be called again if you change what the grid is bound to
+
         update: function (element, viewModelAccessor, allBindingsAccessor) {
             var viewModel = viewModelAccessor(), allBindings = allBindingsAccessor();
 
-            // Empty the element
             while(element.firstChild)
                 ko.removeNode(element.firstChild);
 
-            // Allow the default templates to be overridden
             var gridTemplateName      = allBindings.simpleGridTemplate || "ko_simpleGrid_grid",
                 pageLinksTemplateName = allBindings.simpleGridPagerTemplate || "ko_simpleGrid_pageLinks",
                 infoTemplateName = allBindings.simpleGridPagerTemplate || "ko_simpleGrid_info";

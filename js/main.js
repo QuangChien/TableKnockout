@@ -25,17 +25,30 @@ var initialData = [
     { name: "Cara Stevens", position: "Sales Assistant", office: "Edinburgh", age: 21, startDate: "5/3/2011" },
 ];
 
+function Information(name, position, office, age, startDate, salary, isFiltered = true) {
+    this.name = ko.observable(name);
+    this.position = ko.observable(position);
+    this.office = ko.observable(office);
+    this.age = ko.observable(age);
+    this.startDate = ko.observable(startDate);
+    this.salary = ko.observable(salary);
+    this.isFiltered = ko.observable(isFiltered);
+}
+
 var PagedGridModel = function(items) {
-    this.items = ko.observableArray(items);
+    // this.items = ko.observableArray(items);
+    this.items = ko.observableArray(items.map(function (item) {
+        return new Information(item.name, item.position, item.office, item.age, item.startDate, item.salary, item.isFiltered);
+    }));
 
     this.gridViewModel = new ko.simpleGrid.viewModel({
         data: this.items,
         columns: [
-            { headerText: "Name", rowText: "name" },
-            { headerText: "Position", rowText: "position" },
-            { headerText: "Office", rowText: "office" },
-            { headerText: "Age", rowText: "age" },
-            { headerText: "Start date", rowText: "startDate" },
+            { headerText: "Name", rowText: "name"},
+            { headerText: "Position", rowText: "position"},
+            { headerText: "Office", rowText: "office"},
+            { headerText: "Age", rowText: "age"},
+            { headerText: "Start date", rowText: "startDate"},
         ],
         pageSize: 5
     });

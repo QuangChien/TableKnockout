@@ -31,7 +31,7 @@
                 this.currentPageIndex = ko.observable(0);
                 this.pageSize = ko.observable(configuration.pageSize);
 
-                this.sorting = ko.observable(false);
+                this.rowText = ko.observable('name');
 
                 this.availableOptions = ko.observableArray([
                     new Options(5),
@@ -41,9 +41,8 @@
                 ]);
 
                 this.selectedOption = ko.observable();
-                // If you don't specify columns configuration, we'll use scaffolding
+
                 this.columns = configuration.columns || getColumnsForScaffolding(ko.utils.unwrapObservable(this.data()));
-                // console.log(this.columns)
 
                 this.itemsOnCurrentPage = ko.pureComputed(function () {
                     var startIndex = Number(this.pageSize()) * this.currentPageIndex();
@@ -55,7 +54,6 @@
                     var newData = ko.utils.arrayFilter(self.data(), function(item) {
                         return item.match() === true;
                     });
-                    console.log("change")
                     return newData.slice(startIndex, startIndex + Number(this.pageSize()));
                 }, this);
                 // console.log(this.itemsOnCurrentPage())
@@ -113,7 +111,6 @@
 
                 this.optionsChange = function(obj, event){
                     this.pageSize(event.target.value)
-                    // console.log(event.target.value)
                 }
 
                 this.totalRecord = self.data().length;
@@ -137,71 +134,134 @@
                         item.match(false);
                     }
                 });
-                // filterData(newValue);
             });
 
             this.sortData = function(data, event){
-                this.sorting = !this.sorting;
+                console.log(data.rowText)
+                self.rowText(data.rowText);
+                self.currentPageIndex(0);
                 var parentElement = event.target.parentElement;
-                // Array.from(parentElement.children).forEach(function(item) {
-                //     item.classList.remove("sorting_asc");
-                //     item.classList.remove("sorting_desc");
-                // });
+                Array.from(parentElement.children).forEach(function(item) {
+                    if(event.target !== item){
+                        item.classList.remove("sorting_asc");
+                        item.classList.remove("sorting_desc");
+                    }
+                });
+                var sorted;
+                sorted = self.data();
                 if(data.rowText === "name"){
                     if(event.target.classList.contains("sorting_asc")) {
                         event.target.classList.remove("sorting_asc");
                         event.target.classList.add("sorting_desc");
-                        // parentNode.nextElementSibling.style.display = "none";
+
+                        sorted.sort(function sortDesc(a,b) {
+                            if(a.name() > b.name()) return -1;
+                            if(a.name() < b.name()) return 1;
+                            return 0;
+                        });
                     }else{
                         event.target.classList.remove("sorting_desc");
                         event.target.classList.add("sorting_asc");
+
+                        sorted.sort(function sortAsc(a,b) {
+                            if(a.name() > b.name()) return 1;
+                            if(a.name() < b.name()) return -1;
+                            return 0;
+                        });
                     }
+                    self.data(sorted);
                 }
                 if(data.rowText === "position"){
                     if(event.target.classList.contains("sorting_asc")) {
                         event.target.classList.remove("sorting_asc");
                         event.target.classList.add("sorting_desc");
-                        // parentNode.nextElementSibling.style.display = "none";
+
+                        sorted.sort(function sortDesc(a,b) {
+                            if(a.position() > b.position()) return -1;
+                            if(a.position() < b.position()) return 1;
+                            return 0;
+                        });
                     }else{
                         event.target.classList.remove("sorting_desc");
                         event.target.classList.add("sorting_asc");
+
+                        sorted.sort(function sortAsc(a,b) {
+                            if(a.position() > b.position()) return 1;
+                            if(a.position() < b.position()) return -1;
+                            return 0;
+                        });
                     }
+                    self.data(sorted);
                 }
                 if(data.rowText === "office"){
                     if(event.target.classList.contains("sorting_asc")) {
                         event.target.classList.remove("sorting_asc");
                         event.target.classList.add("sorting_desc");
-                        // parentNode.nextElementSibling.style.display = "none";
+
+                        sorted.sort(function sortDesc(a,b) {
+                            if(a.office() > b.office()) return -1;
+                            if(a.office() < b.office()) return 1;
+                            return 0;
+                        });
                     }else{
                         event.target.classList.remove("sorting_desc");
                         event.target.classList.add("sorting_asc");
+
+                        sorted.sort(function sortAsc(a,b) {
+                            if(a.office() > b.office()) return 1;
+                            if(a.office() < b.office()) return -1;
+                            return 0;
+                        });
                     }
+                    self.data(sorted);
                 }
                 if(data.rowText === "age"){
                     if(event.target.classList.contains("sorting_asc")) {
                         event.target.classList.remove("sorting_asc");
                         event.target.classList.add("sorting_desc");
-                        // parentNode.nextElementSibling.style.display = "none";
+
+                        sorted.sort(function sortDesc(a,b) {
+                            if(a.age() > b.age()) return -1;
+                            if(a.age() < b.age()) return 1;
+                            return 0;
+                        });
+
+
                     }else{
                         event.target.classList.remove("sorting_desc");
                         event.target.classList.add("sorting_asc");
+
+                        sorted.sort(function sortAsc(a,b) {
+                            if(a.age() > b.age()) return 1;
+                            if(a.age() < b.age()) return -1;
+                            return 0;
+                        });
                     }
+                    self.data(sorted);
                 }
                 if(data.rowText === "startDate"){
                     if(event.target.classList.contains("sorting_asc")) {
                         event.target.classList.remove("sorting_asc");
                         event.target.classList.add("sorting_desc");
-                        // parentNode.nextElementSibling.style.display = "none";
+
+                        sorted.sort(function sortDesc(a,b) {
+                            if(new Date(a.startDate()) > new Date(b.startDate())) return -1;
+                            if(new Date(a.startDate()) < new Date((b.startDate()))) return 1;
+                            return 0;
+                        });
                     }else{
                         event.target.classList.remove("sorting_desc");
                         event.target.classList.add("sorting_asc");
+
+                        sorted.sort(function sortAsc(a,b) {
+                            if(new Date(a.startDate()) > new Date(b.startDate())) return 1;
+                            if(new Date(a.startDate()) < new Date((b.startDate()))) return -1;
+                            return 0;
+                        });
                     }
+                    self.data(sorted);
                 }
             }
-
-            this.sorting.subscribe(function(newValue){
-                console.log(newValue)
-            })
 
             this.showChild = function(data, event){
                 if(data.rowText === "name"){
@@ -212,8 +272,7 @@
                         parentNode.nextElementSibling.style.display = "none";
                     }else{
                         parentNode.classList.add("parent");
-                        parentNode.nextElementSibling.style.display = "block";
-                        parentNode.nextElementSibling.style.width = "100%";
+                        parentNode.nextElementSibling.style.display = "table-row";
                     }
                 }
             }
@@ -228,14 +287,6 @@
                     return false;
                 }
             }
-
-            // console.log(this.data())
-
-            // function filterData(filter) {
-            //     self = this;
-            //
-            //     // console.log(configuration.data())
-            // }
         }
     };
 
@@ -271,7 +322,7 @@
                     <table style=\"width: 100%;\" class=\"ko-grid display nowrap dataTable dtr-inline collapsed\" cellspacing=\"0\">\
                         <thead>\
                             <tr data-bind=\"foreach: columns\">\
-                               <th class=\"sorting\" data-bind=\"hidden: !show, text: headerText, click: $root.sortData, css: { sorting_asc: rowText === 'name' }\"></th>\
+                               <th class=\"sorting\" data-bind=\"hidden: !show, text: headerText, click: $root.sortData, css: { sorting_asc: rowText === 'name' }, class: rowText \"></th>\
                             </tr>\
                         </thead>\
                         <tbody data-bind=\"visible: numberOf() === 0\">\
@@ -280,14 +331,14 @@
                         </tr>\
                         </tbody>\
                         <tbody data-bind=\"foreach: itemsOnCurrentPage\">\
-                           <tr data-bind=\"foreach: $parent.columns, css: { old: id % 2 != 0, even: id % 2 === 0, parent: false}\">\
-                               <td data-bind=\"click: $root.showChild, hidden: !show, css: {sorting_1: rowText === 'name', 'dtr-control': rowText === 'name' }, text: typeof rowText == 'function' ? rowText($parent) : $parent[rowText] \"></td>\
+                           <tr data-bind=\"foreach: $parent.columns, css: { old: $index() % 2 === 0, even: $index() % 2 != 0, parent: false}\">\
+                               <td data-bind=\"click: $root.showChild, hidden: !show, css: {sorting_1: rowText === $root.rowText(), 'dtr-control': rowText === 'name' }, text: typeof rowText == 'function' ? rowText($parent) : $parent[rowText] \"></td>\
                            </tr>\
                            <tr class=\"child salary\">\
                                 <td class=\"child\" colspan=\"5\">\
                                     <ul class=\"dtr-details\" data-dtr-index=\"4\">\
                                         <li class=\" dt-body-right\" data-dt-column=\"5\" data-dt-row=\"4\" data-dtr-index=\"5\"><span class=\"dtr-title\">Salary</span>\
-                                            $<span data-bind=\"text: salary \" class=\"dtr-data\"></span></li>\
+                                            <span data-bind=\"text: salary \" class=\"dtr-data\"></span></li>\
                                     </ul>\
                                 </td>\
                            </tr>\

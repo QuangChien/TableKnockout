@@ -1,32 +1,21 @@
 var initialData = [
-    { id: 1, name: "Airi Satou", position: "Accountant", office: "Tokyo", age: 33, startDate: "11/28/2008", salary: "162.700" },
-    { id: 2, name: "Angelica Ramos", position: "Chief Executive Officer (CEO)", office: "London", age: 47, startDate: "10/9/2009", salary: "127.04" },
-    { id: 3, name: "Ashton Cox", position: "Junior Technical Author", office: "San Francisco", age: 66, startDate: "1/12/2009", salary: "12.332" },
-    { id: 4, name: "Bradley Greer", position: "Software Engineer", office: "London", age: 41, startDate: "10/13/2012", salary: "12.332" },
-    { id: 5, name: "Brielle Williamson", position: "Integration Specialist", office: "New York", age: 61, startDate: "12/2/2012", salary: "12.332" },
-    { id: 6, name: "Caesar Vance", position: "Sales Assistant", office: "New York", age: 46, startDate: "12/6/2011", salary: "12.332" },
-    { id: 7, name: "Cara Stevens", position: "Sales Assistant", office: "Edinburgh", age: 21, startDate: "5/3/2011", salary: "12.332" },
-    { id: 8, name: "Cara Stevens", position: "Sales Assistant", office: "Edinburgh", age: 21, startDate: "5/3/2011", salary: "12.332" },
-    { id: 9, name: "Airi Satou", position: "Accountant", office: "Tokyo", age: 33, startDate: "11/28/2008", salary: 120 },
-    { id: 10, name: "Angelica Ramos", position: "Chief Executive Officer (CEO)", office: "London", age: 47, startDate: "10/9/2009", salary: "12.332" },
-    { id: 11, name: "Ashton Cox", position: "Junior Technical Author", office: "San Francisco", age: 66, startDate: "1/12/2009", salary: "12.332" },
-    { id: 12, name: "Bradley Greer", position: "Software Engineer", office: "London", age: 41, startDate: "10/13/2012", salary: "12.332" },
-    { id: 13, name: "Brielle Williamson", position: "Integration Specialist", office: "New York", age: 61, startDate: "12/2/2012", salary: "12.332" },
-    { id: 14, name: "Caesar Vance", position: "Sales Assistant", office: "New York", age: 46, startDate: "12/6/2011", salary: "12.332" },
-    { id: 15, name: "Cara Stevens", position: "Sales Assistant", office: "Edinburgh", age: 21, startDate: "5/3/2011", salary: "12.332" },
-    { id: 16, name: "Cara Stevens", position: "Sales Assistant", office: "Edinburgh", age: 21, startDate: "5/3/2011", salary: "12.332"},
-    { id: 17, name: "Airi Satou", position: "Accountant", office: "Tokyo", age: 33, startDate: "11/28/2008", salary: "12.332"},
-    { id: 18, name: "Angelica Ramos", position: "Chief Executive Officer (CEO)", office: "London", age: 47, startDate: "10/9/2009", salary: "12.332" },
-    { id: 19, name: "Ashton Cox", position: "Junior Technical Author", office: "San Francisco", age: 66, startDate: "1/12/2009", salary: "12.332" },
-    { id: 20, name: "Bradley Greer", position: "Software Engineer", office: "London", age: 41, startDate: "10/13/2012", salary: "12.332" },
-    { id: 21, name: "Brielle Williamson", position: "Integration Specialist", office: "New York", age: 61, startDate: "12/2/2012", salary: "12.332" },
-    { id: 22, name: "Caesar Vance", position: "Sales Assistant", office: "New York", age: 46, startDate: "12/6/2011", salary: "12.332" },
-    { id: 23, name: "Cara Stevens", position: "Sales Assistant", office: "Edinburgh", age: 21, startDate: "5/3/2011", salary: "12.332" },
-    { id: 24, name: "Cara Stevens", position: "Sales Assistant", office: "Edinburgh", age: 21, startDate: "5/3/2011", salary: "12.332" },
+    { name: "Airi Satou", position: "Accountant", office: "Tokyo", age: 33, startDate: "11/28/2008", salary: "$162,700" },
+    { name: "Angelica Ramos", position: "Chief Executive Officer (CEO)", office: "London", age: 47, startDate: "10/9/2009", salary: "$1,200,000" },
+    { name: "Ashton Cox", position: "Junior Technical Author", office: "San Francisco", age: 66, startDate: "1/12/2009", salary: "$86,000" },
+    { name: "Bradley Greer", position: "Software Engineer", office: "London", age: 41, startDate: "10/13/2012", salary: "$132,000" },
+    { name: "Brielle Williamson", position: "Integration Specialist", office: "New York", age: 61, startDate: "12/2/2012", salary: "$206,850" },
+    { name: "Caesar Vance", position: "Sales Assistant", office: "New York", age: 46, startDate: "12/6/2011", salary: "$372,000" },
+    { name: "Cara Stevens", position: "Sales Assistant", office: "Edinburgh", age: 21, startDate: "5/3/2011", salary: "$145,600" },
+    { name: "Cedric Kelly", position: "Senior Javascript Developer", office: "Edinburgh", age: 22, startDate: "3/29/2012", salary: " $433,060" },
+    { name: "Charde Marshall", position: "Regional Director", office: "San Francisco", age: 36, startDate: "10/16/2008", salary: "$470,600" },
+    { name: "Colleen Hurst", position: "Javascript Developer", office: "San Francisco", age: 39, startDate: "9/15/2009", salary: "$205,500" },
+
+    { name: "Dai Rios", position: "Personnel Lead", office: "Sydney", age: 23, startDate: "9/20/2010", salary: "$85,600" },
+    { name: "Finn Camacho", position: "Support Engineer", office: "San Francisco", age: 47, startDate: "7/7/2009", salary: "$87,500" },
+    { name: "Fiona Green", position: "Chief Operating Officer (COO)", office: "Singapore", age: 48, startDate: "3/11/2010", salary: "$850,000" },
 ];
 
-function Information(id, name, position, office, age, startDate, salary, match = true) {
-    this.id = id;
+function Information(name, position, office, age, startDate, salary, match = true) {
     this.name = ko.observable(name);
     this.position = ko.observable(position);
     this.office = ko.observable(office);
@@ -39,7 +28,7 @@ function Information(id, name, position, office, age, startDate, salary, match =
 var PagedGridModel = function(items) {
     // this.items = ko.observableArray(items);
     this.items = ko.observableArray(items.map(function (item) {
-        return new Information(item.id, item.name, item.position, item.office, item.age, item.startDate, item.salary, item.match);
+        return new Information(item.name, item.position, item.office, item.age, item.startDate, item.salary, item.match);
     }));
 
     this.gridViewModel = new ko.simpleGrid.viewModel({
